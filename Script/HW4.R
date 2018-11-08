@@ -3,6 +3,7 @@ library(dplyr)
 library(tidyverse)
 library(tibble)
 library(purrr)
+library(broom)
 homicides <- read.csv(text=getURL(
   "https://raw.githubusercontent.com/randyxun/HW_4/master/homicide-data.csv"))
   
@@ -18,4 +19,9 @@ unsolved <- homicides %>%
 baltimore <- filter(unsolved, city_name == "Baltimore, MD" )
 proportion_baltimore <- prop.test(x = baltimore$total_unsolved, 
                                   n = baltimore$total_homicides)
-tidy(proportion_baltimore)
+tidy_baltimore <- proportion_baltimore %>% 
+  tidy() %>% 
+  select(estimate, conf.low, conf.high)
+
+
+
