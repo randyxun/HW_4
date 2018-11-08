@@ -15,3 +15,7 @@ unsolved <- homicides %>%
   mutate(unsolved = disposition != 'Closed by arrest') %>% 
   summarize(total_homicides = n(),
             total_unsolved = sum(unsolved))
+baltimore <- filter(unsolved, city_name == "Baltimore, MD" )
+proportion_baltimore <- prop.test(x = baltimore$total_unsolved, 
+                                  n = baltimore$total_homicides)
+tidy(proportion_baltimore)
