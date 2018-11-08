@@ -25,5 +25,11 @@ tidy_baltimore <- proportion_baltimore %>%
 
 proportion_unsolved <- unsolved %>% 
   mutate(test = map2(total_unsolved, total_homicides,
-                     ~ prop.test(.x, n = .y)))
-
+                     ~ prop.test(.x, n = .y))) %>% 
+  mutate(test = map(test,
+                    ~ tidy(.x))) %>% 
+  unnest(.drop = TRUE) %>% 
+  select(city_name,
+         estimate,
+         conf.low,
+         conf.high)
