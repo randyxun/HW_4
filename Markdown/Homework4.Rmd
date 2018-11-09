@@ -55,3 +55,5 @@ tidy_baltimore <- proportion_baltimore %>%
   tidy() %>% 
   select(estimate, conf.low, conf.high)
 ```
+
+
