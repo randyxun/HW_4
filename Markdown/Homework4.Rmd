@@ -6,25 +6,53 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## R Markdown
+## Reading in the Homicide Data
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+This is homicide data used by the Washington Post article available at  
+<https://www.washingtonpost.com/graphics/2018/investigations/where-murders-go-unsolved/> The dataset is available at my Github Page <https://github.com/randyxun/HW_4>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-summary(cars)
+
+```{r library}
+library(RCurl)
+library(dplyr)
+library(tidyverse)
+library(tibble)
+library(purrr)
+library(broom)
+library(scales)
 ```
 
-## Including Plots
+```{r read_data}
+homicides <- read.csv(text=getURL(
+  "https://raw.githubusercontent.com/randyxun/HW_4/master/homicide-data.csv"))
+```
+## The proportion of unsolved homicides in Baltimore, MD
 
-You can also embed plots, for example:
+Baltimore is so famous for murders that they created an HBO television series about it.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r cleaning_data}
+homicides <- homicides %>% 
+  unite(col = city_name, city, state, sep = ", ")
+
+unsolved <- homicides %>% 
+  select(city_name, disposition) %>% 
+  group_by(city_name) %>% 
+  mutate(unsolved = disposition != 'Closed by arrest') %>% 
+  summarize(total_homicides = n(),
+            total_unsolved = sum(unsolved))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r prop_baltimore}
+baltimore <- filter(unsolved, city_name == "Baltimore, MD" )
+proportion_baltimore <- prop.test(x = baltimore$total_unsolved, 
+                                  n = baltimore$total_homicides)
+
+tidy_baltimore <- proportion_baltimore %>% 
+  tidy() %>% 
+  select(estimate, conf.low, conf.high)
+```
+
