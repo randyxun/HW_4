@@ -1,1 +1,2 @@
 # HW_4
+This is my repository for HW 4 for my R Programming class. It deals with data on homicide rates in the USA. This is an individual project that is a precursor to Homework 5, which deals with the same data, but is a group project. 
