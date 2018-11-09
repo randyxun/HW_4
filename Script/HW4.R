@@ -43,7 +43,7 @@ proportion_unsolved %>%
   theme_dark() +
   labs(title = "Unsolved homicides by city", 
        subtitle = " Bars show 95% confidence interval", 
-       x = NULL, y = "Percent of homicides that are unsolved") +
+       y = NULL, x = "Percent of homicides that are unsolved") +
   scale_x_continuous(limits = c(0.2, 0.75),
                      breaks = c(0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
                      labels = percent) +
