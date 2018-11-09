@@ -16,7 +16,7 @@ This is homicide data used by the Washington Post article available at
 
 
 
-```{r library}
+```{r library, include=FALSE}
 library(RCurl)
 library(dplyr)
 library(tidyverse)
@@ -30,6 +30,7 @@ library(scales)
 homicides <- read.csv(text=getURL(
   "https://raw.githubusercontent.com/randyxun/HW_4/master/homicide-data.csv"))
 ```
+
 ## The proportion of unsolved homicides in Baltimore, MD
 
 Baltimore is so famous for murders that they created an HBO television series about it.
@@ -46,14 +47,43 @@ unsolved <- homicides %>%
             total_unsolved = sum(unsolved))
 ```
 
-```{r prop_baltimore}
+```{r prop_baltimore, warning=FALSE}
 baltimore <- filter(unsolved, city_name == "Baltimore, MD" )
 proportion_baltimore <- prop.test(x = baltimore$total_unsolved, 
                                   n = baltimore$total_homicides)
+
+proportion_baltimore
 
 tidy_baltimore <- proportion_baltimore %>% 
   tidy() %>% 
   select(estimate, conf.low, conf.high)
 ```
 
+## The distribution of unsolved homicides in the United States
 
+```{r state_graph, warning=FALSE}
+proportion_unsolved <- unsolved %>% 
+  mutate(test = map2(total_unsolved, total_homicides,
+                     ~ prop.test(.x, n = .y))) %>% 
+  mutate(test = map(test,
+                    ~ tidy(.x))) %>% 
+  unnest(.drop = TRUE) %>% 
+  select(city_name, estimate, conf.low, conf.high)
+
+proportion_unsolved %>% 
+  mutate(city_name = fct_reorder(city_name, estimate)) %>% 
+  filter(city_name != "Tulsa, AL") %>% 
+  ggplot(aes(x = estimate, y = city_name)) +
+  geom_point(color= "white") +
+  theme_dark() +
+  labs(title = "Unsolved homicides by city", 
+       subtitle = " Bars show 95% confidence interval", 
+       y = NULL, x = "Percent of homicides that are unsolved") +
+  scale_x_continuous(limits = c(0.2, 0.75),
+                     breaks = c(0.2, 0.3, 0.4, 0.5, 0.6, 0.7),
+                     labels = percent) +
+  geom_errorbarh(color = "white", 
+                aes(y = city_name, xmin = conf.low,
+                    xmax = conf.high, height = 0)) 
+
+```
