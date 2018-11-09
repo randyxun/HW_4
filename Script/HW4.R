@@ -29,7 +29,16 @@ proportion_unsolved <- unsolved %>%
   mutate(test = map(test,
                     ~ tidy(.x))) %>% 
   unnest(.drop = TRUE) %>% 
-  select(city_name,
-         estimate,
-         conf.low,
-         conf.high)
+  select(city_name, estimate, conf.low, conf.high)
+
+proportion_unsolved %>% 
+  mutate(city_name = fct_reorder(city_name, estimate)) %>% 
+  filter(city_name != "Tulsa, AL") %>% 
+  ggplot(aes(x = city_name, y = estimate)) +
+  geom_point(color= "white") +
+  theme_dark() +
+  coord_flip() +
+  geom_errorbarh(color = "white", 
+                aes(xmin = conf.low,
+                    xmax = conf.high, height = 0)) 
+
